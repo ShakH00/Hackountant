@@ -24,4 +24,4 @@
  - Use your balance to purchase shares based on real-time prices
 
 ### **Learning**
- - Access case studies and educational materials**
+ - Access case studies and educational materials
