@@ -1,5 +1,6 @@
-#Hackathon: Calgary Hacks 2024
-##Topic 2: Empowering Financial Literacy and Management
+# Hackathon: Calgary Hacks 2024
+
+## Topic 2: Empowering Financial Literacy and Management
 
 **Idea:**
  - Create a financial application inclusive of budgeting, investing, and accounting functionalities
