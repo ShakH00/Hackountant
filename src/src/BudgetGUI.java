@@ -6,7 +6,7 @@ import java.awt.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class BudgetGUI extends JFrame {
@@ -14,7 +14,7 @@ public class BudgetGUI extends JFrame {
     private JTextField typeField, amountField, dateTimeField;
     private DefaultTableModel tableModel;
     private JTable table;
-    private JLabel totalLabel; // Label to display the total expenses
+    private JLabel totalLabel, balanceLabel, dateTimeLabel; // Labels for total expenses, total balance, and current date/time
     private SimpleDateFormat dateTimeFormat;
 
     public BudgetGUI() {
@@ -23,19 +23,20 @@ public class BudgetGUI extends JFrame {
 
         setLayout(new BorderLayout());
 
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new FlowLayout());
+        JPanel inputPanel = new JPanel(new GridLayout(2, 1)); // Using GridLayout to organize components
+        JPanel fieldsPanel = new JPanel(new FlowLayout()); // Panel for input fields and buttons
+        JPanel dateTimePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // Panel for displaying current date/time
 
         typeField = new JTextField(10);
         amountField = new JTextField(10);
         dateTimeField = new JTextField(15); // For combined date and time input
 
-        inputPanel.add(new JLabel("Type:"));
-        inputPanel.add(typeField);
-        inputPanel.add(new JLabel("Amount:"));
-        inputPanel.add(amountField);
-        inputPanel.add(new JLabel("Date & Time (yyyy-MM-dd HH:mm):"));
-        inputPanel.add(dateTimeField);
+        fieldsPanel.add(new JLabel("Type:"));
+        fieldsPanel.add(typeField);
+        fieldsPanel.add(new JLabel("Amount:"));
+        fieldsPanel.add(amountField);
+        fieldsPanel.add(new JLabel("Date & Time (yyyy-MM-dd HH:mm):"));
+        fieldsPanel.add(dateTimeField);
 
         JButton addButton = new JButton("Add");
         addButton.addActionListener(e -> addExpense());
@@ -43,8 +44,19 @@ public class BudgetGUI extends JFrame {
         JButton removeButton = new JButton("Remove Selected");
         removeButton.addActionListener(e -> removeSelectedExpense());
 
-        inputPanel.add(addButton);
-        inputPanel.add(removeButton);
+        JButton finishButton = new JButton("Finish");
+        finishButton.addActionListener(e -> suggestInvestment());
+
+        fieldsPanel.add(addButton);
+        fieldsPanel.add(removeButton);
+        fieldsPanel.add(finishButton);
+
+        // Current date and time display
+        dateTimeLabel = new JLabel(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        dateTimePanel.add(dateTimeLabel);
+
+        inputPanel.add(fieldsPanel);
+        inputPanel.add(dateTimePanel);
 
         // Table setup
         String[] columnNames = {"Type", "Date", "Amount"};
@@ -53,10 +65,12 @@ public class BudgetGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
-        // Total expenses display setup
+        // Total expenses and balance display setup
         JPanel totalPanel = new JPanel(new FlowLayout());
-        totalLabel = new JLabel("Total: $0.00");
+        totalLabel = new JLabel("Total Expenses: $0.00");
+        balanceLabel = new JLabel("Total Balance: $" + budget.getTotalBalance()); // Display total balance
         totalPanel.add(totalLabel);
+        totalPanel.add(balanceLabel);
 
         add(inputPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
@@ -124,9 +138,21 @@ public class BudgetGUI extends JFrame {
             double amount = Double.parseDouble(tableModel.getValueAt(row, 2).toString());
             total += amount;
         }
-        totalLabel.setText(String.format("Total: $%.2f", total));
+        balanceLabel.setText("Total Balance: $" + budget.getTotalBalance()); // Update balance display
     }
 
+    private void suggestInvestment() {
+        double totalExpenses = Double.parseDouble(totalLabel.getText().split("\\$")[1]);
+        double totalBalance = budget.getTotalBalance();
+        String message;
+        if (totalBalance - totalExpenses > 0) {
+            message = "Investment is suggested.";
+        } else {
+            message = "Budget deficit. Cut down expenses.";
+        }
+        JOptionPane.showMessageDialog(this, message);
+    }
+    
     public static void main(String[] args) {
         new BudgetGUI();
     }
