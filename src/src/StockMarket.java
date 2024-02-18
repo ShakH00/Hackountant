@@ -2,16 +2,13 @@ package src.src;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 
-public class StockMarket extends JFrame {
+public class StockMarket extends JFrame implements WindowListener {
     private JPanel NASDAQ;
     private JComboBox companySelect;
     private JTextField buyField;
@@ -169,6 +166,13 @@ public class StockMarket extends JFrame {
             }
         });
 
+        sellBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                sellShares(companyChosen);
+            }
+        });
+
     }
 
     public stockAccount currentCompany(String chosenCompany){
@@ -202,8 +206,9 @@ public class StockMarket extends JFrame {
             if(difference >= 0){
                 stockCompany.addShares(purchaseAmt);
                 bankAccount.withdraw(totalPurchaseCost,"Purchase of "+ purchaseAmt+" shares of "+ corpName +" for $" + totalPurchaseCost);
-                ownedSharesTxt.setText(String.valueOf(stockCompany.getSharesOwned()));
+                ownedTxt.setText(String.valueOf(stockCompany.getSharesOwned()));
                 balTxt.setText(String.valueOf(bankAccount.getBalance()));
+                serializeAll();
             } else{
                 errorTxt.setText("You don't have enough money to make this purchase!");
             }
@@ -224,8 +229,9 @@ public class StockMarket extends JFrame {
             if(difference >= 0){
                 stockCompany.removeShares(sellAmt);
                 bankAccount.deposit(sellAmt*shareCost, "Sold "+sellAmt+"shares of "+corpName+" for $"+(sellAmt*shareCost));
-                ownedSharesTxt.setText(String.valueOf(stockCompany.getSharesOwned()));
+                ownedTxt.setText(String.valueOf(stockCompany.getSharesOwned()));
                 balTxt.setText(String.valueOf(bankAccount.getBalance()));
+                serializeAll();
             } else{
                 errorTxt.setText("You don't have that many shares to sell!");
             }
@@ -234,14 +240,48 @@ public class StockMarket extends JFrame {
 
         }
     }
-    public static void main(String[] args, BankAccount account) {
-        StockMarket invest = new StockMarket(account);
-        invest.setContentPane(invest.NASDAQ);
-        invest.setTitle("Learn to Invest");
-        invest.setSize(300,400);
-        invest.setVisible(true);
-        invest.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+    public void serializeAll(){
+        serializeShares("GOOGL",googleShares);
+        serializeShares("MSFT",microsoftShares);
+        serializeShares("TSLA",teslaShares);
+        serializeShares("COST",costcoShares);
+        serializeShares("NVDA",nvidiaShares);
     }
 
 
+    @Override
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
+    }
 }
