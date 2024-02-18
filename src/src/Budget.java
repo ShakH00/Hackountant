@@ -36,6 +36,8 @@ public class Budget implements Serializable {
     public void suggestInvestment(int balance, int expenses) {
         if (balance - expenses > 0) {
             System.out.println("Investment is suggested.");
+        } else if(balance - expenses == 0){
+            System.out.println("Investment will cause you to go into deficit.");
         } else {
             System.out.println("Budget deficit. Cut down expenses.");
         }

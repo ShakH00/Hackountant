@@ -148,6 +148,8 @@ public class BudgetGUI extends JFrame {
         String message;
         if (totalBalance - totalExpenses > 0) {
             message = "Investment is suggested.";
+        } else if(totalBalance - totalExpenses == 0){
+            message = "Investment will cause deficit.";
         } else {
             message = "Budget deficit. Cut down expenses.";
         }

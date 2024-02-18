@@ -4,10 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.*;
 
-public class MainScreen extends JFrame {
+public class MainScreen extends JFrame implements WindowListener{
     private BudgetGUI budgetWindow;
     private StockMarket stocksWindow;
     BankAccount Chequing;
@@ -50,9 +51,12 @@ public class MainScreen extends JFrame {
     }
     public MainScreen() {
         if(deSerializeAccounts()==null){
-            Chequing = new BankAccount("Chequing");
+            Chequing = new BankAccount("Chequing",0);
             initializeBalance = new InitializeAccount(Chequing);
+            initializeBalance.addWindowListener(this);
             initializeBalance.setVisible(true);
+        } else{
+            Chequing = deSerializeAccounts();
         }
 
         JButton budgetButton = new JButton("Budgeting");
@@ -63,7 +67,7 @@ public class MainScreen extends JFrame {
         add(budgetButton);
         add(investButton);
         add(learnButton);
-
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // Set the layout and size of the frame
         setLayout(new FlowLayout());
         setSize(300, 200);
@@ -75,15 +79,58 @@ public class MainScreen extends JFrame {
                 openBudget();
             }
         });
+
+        investButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                openInvestments();
+            }
+        });
     }
 
     public void openBudget(){
         budgetWindow = new BudgetGUI();
+        budgetWindow.addWindowListener(this);
         budgetWindow.setVisible(true);
     }
 
-    /*public void openInvestments(){
-        stocksWindow = new StockMarket();
-        stocksWindow.addW
-    }*/
+    public void openInvestments(){
+        stocksWindow = new StockMarket(Chequing);
+        stocksWindow.addWindowListener(this);
+        stocksWindow.setVisible(true);
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    public void windowClosing(WindowEvent e){
+        serializeAccounts(Chequing);
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
+    }
 }

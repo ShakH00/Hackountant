@@ -24,16 +24,16 @@ public class InitializeAccount extends JFrame {
         contentPane.setLayout(null);
         setContentPane(contentPane);
 
-        JLabel enterAmtTxt = new JLabel("Please provide us an initial balance for your Chequing account:");
-        enterAmtTxt.setBounds(25,25,350,50);
+        JLabel enterAmtTxt = new JLabel("Initial balance for your Chequing account:");
+        enterAmtTxt.setBounds(75,25,350,50);
         contentPane.add(enterAmtTxt);
 
         errorTxt = new JLabel("");
-        errorTxt.setBounds(125,125,500,100);
+        errorTxt.setBounds(150,125,500,100);
         contentPane.add(errorTxt);
 
         txtField = new JTextField();
-        txtField.setBounds(125,75,100,20);
+        txtField.setBounds(150,75,100,20);
         txtField.setColumns(10);
         contentPane.add(txtField);
 
@@ -44,7 +44,7 @@ public class InitializeAccount extends JFrame {
                 firstDeposit();
             }
         });
-        initializeBtn.setBounds(75,125,100,20);
+        initializeBtn.setBounds(150,125,100,20);
         contentPane.add(initializeBtn);
 
     }

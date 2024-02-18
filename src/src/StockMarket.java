@@ -1,6 +1,7 @@
 package src.src;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -10,7 +11,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 
-public class StockMarket {
+public class StockMarket extends JFrame {
     private JPanel NASDAQ;
     private JComboBox companySelect;
     private JTextField buyField;
@@ -87,6 +88,14 @@ public class StockMarket {
         companyChosen = "GOOGL";
         balTxt.setText(String.valueOf(account.getBalance()));
         bankAccount = account;
+        setAlwaysOnTop(true);
+        setBounds(0,0,700,500);
+        setContentPane(NASDAQ);
+        setTitle("Learn to Invest");
+        setSize(500,500);
+        setVisible(true);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
 
 
         if(deSerializeShares("GOOGL")==null){
@@ -123,29 +132,31 @@ public class StockMarket {
         } else{
             nvidiaShares = deSerializeShares("NVDA");
         }
+        ownedTxt.setText(String.valueOf(googleShares.getSharesOwned()));
+        sharePriceTxt.setText(String.valueOf(googleShares.costPerShare()));
 
         companySelect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(companySelect.getSelectedItem().equals("GOOGL")){
                     companyChosen = "GOOGL";
-                    ownedSharesTxt.setText(String.valueOf(googleShares.getSharesOwned()));
+                    ownedTxt.setText(String.valueOf(googleShares.getSharesOwned()));
                     sharePriceTxt.setText(googleShares.costPerShare());
                 } else if(companySelect.getSelectedItem().equals("MSFT")){
                     companyChosen = "MSFT";
-                    ownedSharesTxt.setText(String.valueOf(microsoftShares.getSharesOwned()));
+                    ownedTxt.setText(String.valueOf(microsoftShares.getSharesOwned()));
                     sharePriceTxt.setText(microsoftShares.costPerShare());
                 } else if(companySelect.getSelectedItem().equals("TSLA")){
                     companyChosen = "TSLA";
-                    ownedSharesTxt.setText(String.valueOf(teslaShares.getSharesOwned()));
+                    ownedTxt.setText(String.valueOf(teslaShares.getSharesOwned()));
                     sharePriceTxt.setText(teslaShares.costPerShare());
                 } else if(companySelect.getSelectedItem().equals("COST")){
                     companyChosen = "COST";
-                    ownedSharesTxt.setText(String.valueOf(costcoShares.getSharesOwned()));
+                    ownedTxt.setText(String.valueOf(costcoShares.getSharesOwned()));
                     sharePriceTxt.setText(costcoShares.costPerShare());
                 } else if(companySelect.getSelectedItem().equals("NVDA")){
                     companyChosen = "NVDA";
-                    ownedSharesTxt.setText(String.valueOf(nvidiaShares.getSharesOwned()));
+                    ownedTxt.setText(String.valueOf(nvidiaShares.getSharesOwned()));
                     sharePriceTxt.setText(nvidiaShares.costPerShare());
                 }
             }
@@ -223,4 +234,14 @@ public class StockMarket {
 
         }
     }
+    public static void main(String[] args, BankAccount account) {
+        StockMarket invest = new StockMarket(account);
+        invest.setContentPane(invest.NASDAQ);
+        invest.setTitle("Learn to Invest");
+        invest.setSize(300,400);
+        invest.setVisible(true);
+        invest.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+
 }
