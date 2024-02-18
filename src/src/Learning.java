@@ -112,7 +112,7 @@ public class Learning extends JFrame {
     public Learning() {
         setTitle("Investment Learning Platform");
         setSize(800, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         initializeQuizQuestions();
 

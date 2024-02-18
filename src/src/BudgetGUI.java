@@ -16,6 +16,7 @@ public class BudgetGUI extends JFrame {
     private JTable table;
     private JLabel totalLabel, balanceLabel, dateTimeLabel; // Labels for total expenses, total balance, and current date/time
     private SimpleDateFormat dateTimeFormat;
+    BankAccount Chequing;
 
     public BudgetGUI() {
         budget = new Budget();

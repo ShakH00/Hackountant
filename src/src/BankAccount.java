@@ -1,14 +1,17 @@
 package src.src;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.io.Serializable;
+import java.time.LocalDate;
+
+import static java.time.temporal.ChronoUnit.DAYS;
+
 public class BankAccount implements Serializable{
-    //The next 2 lines create instance variables that are needed for the bank account information
     String accountNumber;
     double balance;
-    // create arraylist that holds all transactions
-    ArrayList<Transaction> transactions = new ArrayList();
+    boolean manualInput;
+    double biweeklyPay;
+    LocalDate lastPayDay;
 
     // The next public string method returns an accountNumber
     public String getAccountNumber() {
@@ -19,97 +22,58 @@ public class BankAccount implements Serializable{
         return balance;
     }
 
-    // the next public void method is called on to add transaction information to the transaction arraylist
-    public void addToArrayList(Transaction newTransaction) {
-        // boolean to for if the info was added or not
-        boolean hasBeenAdded = false;
-        int transactionSize = transactions.size();
-        // for loop that loops through pre existing transactions in the arraylist
-        for(int i = 0; i < transactionSize; i++){
-            // if statement that checks if the newTransaction is greater than the transaction that the for loop is on, if so it adds it to the arraylist and sets hasBeenAdded to true
-            if(transactions.get(i).getTransactionTime().compareTo(newTransaction.getTransactionTime())>0){
+    public double getBiweeklyPay(){
+        return biweeklyPay;
+    }
 
-                transactions.add(i,newTransaction);
-                hasBeenAdded = true;
-            }
-        }
-        // if statement that would only run if the newTransaction time is greater than all previous transactions or if the arraylist is initially empty
-        if (hasBeenAdded == false) {
-            transactions.add(newTransaction);
-        }
+    public boolean isManualInput(){
+        return manualInput;
     }
-    // deposit method that takes in time of the deposit, amount and description
-    public void deposit(LocalDateTime transactionTime, double amount, String description) {
-        balance += amount;
-        Transaction transactionlog = new Transaction(transactionTime, amount, description);
-        addToArrayList(transactionlog);
+
+    public double monthlyPay(){
+        double monthly = biweeklyPay*2;
+        return monthly;
     }
+
+    public void setBiweeklyPay(double pay){
+        biweeklyPay = pay;
+    }
+
+    public void setManualInput(boolean choice){
+        manualInput = choice;
+    }
+
+    public boolean isNewPayDay(){
+        LocalDate today = LocalDate.now();
+        if(DAYS.between(lastPayDay,today) >= 14){
+            lastPayDay = today;
+            return true;
+        }
+        return false;
+    }
+
+
+
     // deposit method that takes in amount and description
     public void deposit(double amount, String description) {
         balance += amount;
-        Transaction transactionlog = new Transaction(amount, description);
-        addToArrayList(transactionlog);
     }
     // deposit method that takes in amount, sets description to unavailable
     public void deposit(double amount) {
         balance += amount;
-        String description = "Deposit Transaction";
-        Transaction transactionlog = new Transaction(amount, description);
-        addToArrayList(transactionlog);
+
     }
     // withdraw method that takes in amount, sets description to unavailable
     public void withdraw(double amount) {
         balance -= amount;
-        String description = "Withdraw Transaction";
-        Transaction transactionlog = new Transaction(amount, description);
-        addToArrayList(transactionlog);
+
     }
-    // withdraw method that takes in time of the withdraw, amount and description
-    public void withdraw(LocalDateTime transactionTime, double amount, String description) {
-        balance -= amount;
-        Transaction transactionlog = new Transaction(transactionTime, amount, description);
-        addToArrayList(transactionlog);
-    }
+
     // withdraw method that takes in amount and description
     public void withdraw(double amount, String description) {
         balance -= amount;
-        Transaction transactionlog = new Transaction(amount, description);
-        addToArrayList(transactionlog);
     }
-    // arraylist method that returns transactions that occurred between specific times
-    public ArrayList<Transaction> getTransactions(LocalDateTime startTime, LocalDateTime endTime) {
-        // create arraylist that will hold all transactions that will be returned at the end
-        ArrayList<Transaction> transactionsToReturn = new ArrayList();
-        // if statement that fires if theres no starttime but theres and endtime, it will get all transactions that happened up until that endtime
-        if((startTime == null)&& (endTime != null)) {
-            for(int i = 0; i < transactions.size(); i++) {
-                if(transactions.get(i).getTransactionTime().compareTo(endTime)<=0) {
-                    transactionsToReturn.add(transactions.get(i));
-                }
-            }
-            // else if statement that fires if theres a starttime but no endtime, it will get all transactions that happened since that starttime and onwards till the latest transaction
-        } else if ((startTime!=null)&&(endTime == null)) {
-            for(int i = 0; i < transactions.size(); i++) {
-                if(transactions.get(i).getTransactionTime().compareTo(startTime)>=0) {
-                    transactionsToReturn.add(transactions.get(i));
-                }
-            }
-            // else if statement that fires if theres no starttime or end time, it will get all transactions that occured no matter the time
-        } else if ((startTime == null) && (endTime == null)) {
-            for(int i = 0; i < transactions.size(); i++) {
-                transactionsToReturn.add(transactions.get(i));
-            }
-            // else statement that fires of there is a starttime and an endtime, it will get all transactions that occurred in that given time period
-        } else {
-            for(int i = 0; i < transactions.size(); i++) {
-                if((transactions.get(i).getTransactionTime().compareTo(startTime)>=0)&&(transactions.get(i).getTransactionTime().compareTo(endTime)<=0)) {
-                    transactionsToReturn.add(transactions.get(i));
-                }
-            }
-        }
-        // return the transactions that occured in the time period provided
-        return transactionsToReturn;
-    }
+
 
     // The next public boolean method checks if a bank account's balance is in debt (less than $0 in it) and if it is, returns true, if it is not, it returns false
     public boolean isInDebt() {
@@ -127,6 +91,9 @@ public class BankAccount implements Serializable{
     public BankAccount(String anumber, double ibal) {
         accountNumber = anumber;
         balance = ibal;
+        manualInput = false;
+        biweeklyPay = 0;
+        lastPayDay = LocalDate.now();
     }
 
 }

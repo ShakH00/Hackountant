@@ -1,6 +1,7 @@
 package src.src;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -11,8 +12,14 @@ import java.io.*;
 public class MainScreen extends JFrame implements WindowListener{
     private BudgetGUI budgetWindow;
     private StockMarket stocksWindow;
+    private Learning learnWindow;
+    private BankingWindow paySelect;
     BankAccount Chequing;
     InitializeAccount initializeBalance;
+    ManualPayInput manualPay;
+    private JPanel contentPane;
+    private JLabel displayBal;
+
 
     public void serializeAccounts(BankAccount account){
         try{
@@ -58,20 +65,46 @@ public class MainScreen extends JFrame implements WindowListener{
         } else{
             Chequing = deSerializeAccounts();
         }
+        if(Chequing.isNewPayDay()==true){
+            if(Chequing.isManualInput()==true){
+                manualPay = new ManualPayInput(Chequing);
+                manualPay.addWindowListener(this);
+                manualPay.setVisible(true);
+            } else{
+                double pay = Chequing.getBiweeklyPay();
+                Chequing.deposit(pay, "BiWeekly paycheque");
+            }
 
+        }
+        setBounds(0,0,400,250);
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(5,5,5,5));
+        contentPane.setLayout(null);
+        setContentPane(contentPane);
         JButton budgetButton = new JButton("Budgeting");
+        budgetButton.setBounds(75, 100, 125, 20);
+        contentPane.add(budgetButton);
         JButton investButton = new JButton("Investing");
+        investButton.setBounds(200,100,125,20);
+        contentPane.add(investButton);
         JButton learnButton = new JButton("Learning");
+        learnButton.setBounds(75,125,125,20);
+        contentPane.add(learnButton);
+        JButton paySelButton = new JButton("Edit Paycheque");
+        paySelButton.setBounds(200,125,125,20);
+        contentPane.add(paySelButton);
+        JLabel balTxt = new JLabel("Balance: ");
+        balTxt.setBounds(75,25,100,50);
+        contentPane.add(balTxt);
 
-        // Add the buttons to the frame
-        add(budgetButton);
-        add(investButton);
-        add(learnButton);
+
+        displayBal = new JLabel("");
+        displayBal.setBounds(150,25,100,50);
+        contentPane.add(displayBal);
+        displayBal.setText(String.valueOf(Chequing.getBalance()));
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // Set the layout and size of the frame
-        setLayout(new FlowLayout());
-        setSize(300, 200);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         budgetButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -80,12 +113,37 @@ public class MainScreen extends JFrame implements WindowListener{
             }
         });
 
+        paySelButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                openPaySelect();
+            }
+        });
         investButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 openInvestments();
             }
         });
+
+        learnButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                openLesson();
+            }
+        });
+    }
+
+    public void openPaySelect(){
+        paySelect = new BankingWindow(Chequing);
+        paySelect.addWindowListener(this);
+        paySelect.setVisible(true);
+    }
+
+    public void openLesson(){
+        learnWindow = new Learning();
+        learnWindow.addWindowListener(this);
+        learnWindow.setVisible(true);
     }
 
     public void openBudget(){
@@ -107,6 +165,8 @@ public class MainScreen extends JFrame implements WindowListener{
 
     public void windowClosing(WindowEvent e){
         serializeAccounts(Chequing);
+        displayBal.setText(String.valueOf(Chequing.getBalance()));
+
     }
 
     @Override
