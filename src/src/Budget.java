@@ -1,5 +1,6 @@
 package src.src;
 
+import java.io.*;
 import java.io.Serializable;
 import java.util.*;
 import java.time.LocalDateTime;
@@ -62,6 +63,24 @@ public class Budget implements Serializable {
     public List<Expense> getExpenses() {
         return expenses;
     }
+
+    public void serializeBudget(String filePath) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
+            oos.writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Budget deserializeBudget(String filePath) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
+            return (Budget) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new Budget(); // Return a new instance if deserialization fails
+        }
+    }
+
 }
 
 class Expense implements Serializable {

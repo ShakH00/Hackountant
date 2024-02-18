@@ -1,5 +1,6 @@
 package src.src;
 
+import java.io.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -18,8 +19,9 @@ public class BudgetGUI extends JFrame {
     private SimpleDateFormat dateTimeFormat;
     BankAccount Chequing;
 
-    public BudgetGUI() {
+    public BudgetGUI(BankAccount account) {
         budget = new Budget();
+        Chequing = account;
         dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm"); // Example date and time format
 
         setLayout(new BorderLayout());
@@ -49,9 +51,13 @@ public class BudgetGUI extends JFrame {
         JButton finishButton = new JButton("Finish");
         finishButton.addActionListener(e -> suggestInvestment());
 
+        JButton saveButton = new JButton("Save Budget");
+        saveButton.addActionListener(e -> saveBudgetState());
+
         fieldsPanel.add(addButton);
         fieldsPanel.add(removeButton);
         fieldsPanel.add(finishButton);
+        fieldsPanel.add(saveButton);
 
         // Current date and time display
         dateTimeLabel = new JLabel(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
@@ -70,6 +76,7 @@ public class BudgetGUI extends JFrame {
         // Total expenses and balance display setup
         JPanel totalPanel = new JPanel(new FlowLayout());
         totalLabel = new JLabel("Total Expenses: $0.00");
+        budget.addAccount(Chequing);
         balanceLabel = new JLabel("Total Balance: $" + budget.getTotalBalance()); // Display total balance
         totalPanel.add(totalLabel);
         totalPanel.add(balanceLabel);
@@ -156,8 +163,45 @@ public class BudgetGUI extends JFrame {
         }
         JOptionPane.showMessageDialog(this, message);
     }
-    
-    public static void main(String[] args) {
-        new BudgetGUI();
+
+    private void saveBudgetState() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("budget_state.txt"))) {
+            oos.writeObject(budget);
+            JOptionPane.showMessageDialog(this, "Budget state saved successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to save budget state.");
+        }
+    }
+
+    private void loadBudgetState() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("budget_state.txt"))) {
+            Object obj = ois.readObject();
+            if (obj instanceof Budget) {
+                budget = (Budget) obj;
+                // Now update the GUI based on the loaded budget
+                updateGUIFromBudget();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to load budget state.");
+        }
+    }
+
+    private void updateGUIFromBudget() {
+        // Clear existing rows
+        tableModel.setRowCount(0);
+
+        // Populate table with expenses from the loaded budget
+        for (Expense expense : budget.getExpenses()) {
+            tableModel.addRow(new Object[]{
+                    expense.getType(),
+                    dateTimeFormat.format(Date.from(expense.getDateTime().atZone(java.time.ZoneId.systemDefault()).toInstant())),
+                    String.valueOf(expense.getAmount())
+            });
+        }
+
+        // Update total and balance labels
+        updateTotal();
     }
 }
