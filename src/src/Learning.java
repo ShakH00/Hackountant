@@ -111,7 +111,7 @@ public class Learning extends JFrame {
 
     public Learning() {
         setTitle("Investment Learning Platform");
-        setSize(600, 400);
+        setSize(800, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         initializeQuizQuestions();
@@ -181,7 +181,6 @@ public class Learning extends JFrame {
         QuizQuestion currentQuestion = quizQuestions.get(currentQuestionIndex);
         if (userAnswer.equalsIgnoreCase(currentQuestion.correctAnswer)) {
             JOptionPane.showMessageDialog(this, "Correct answer!");
-            currentQuestionIndex++;
             nextButton.setEnabled(true); // Enable next button
         } else {
             JOptionPane.showMessageDialog(this, "Incorrect answer. Try again!");
