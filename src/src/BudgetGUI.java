@@ -23,6 +23,7 @@ public class BudgetGUI extends JFrame {
 
         setLayout(new BorderLayout());
 
+
         JPanel inputPanel = new JPanel(new GridLayout(2, 1)); // Using GridLayout to organize components
         JPanel fieldsPanel = new JPanel(new FlowLayout()); // Panel for input fields and buttons
         JPanel dateTimePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // Panel for displaying current date/time
@@ -77,7 +78,7 @@ public class BudgetGUI extends JFrame {
         add(totalPanel, BorderLayout.SOUTH); // Add the total display at the bottom
 
         pack();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
     }
 

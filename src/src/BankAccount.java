@@ -112,7 +112,7 @@ public class BankAccount implements Serializable{
     }
 
     // The next public boolean method checks if a bank account's balance is in debt (less than $0 in it) and if it is, returns true, if it is not, it returns false
-    public boolean inInDebt() {
+    public boolean isInDebt() {
         if (balance < 0) {
             return(true);
         } else {

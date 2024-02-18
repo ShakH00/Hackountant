@@ -16,7 +16,7 @@ public class stockAccount implements Serializable{
         return sharesOwned;
     }
 
-    public String costPerShare(String companyName){
+    public String costPerShare(){
         String price = "not found";
         try{
             URL url = new URL("https://www.google.com/finance/quote/"+companyName+":NASDAQ");
@@ -61,15 +61,6 @@ public class stockAccount implements Serializable{
         sharesOwned = 0;
     }
 
-    public void serializeShares(){
-        try{
-            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(companyName+".txt"));
-            outputStream.writeObject(sharesOwned);
-            outputStream.close();
-        } catch(IOException e){
-            System.out.println(e.getMessage());
-        }
-    }
 
     public String toString(){
         return ("Company: " + companyName + "; Shares Owned: " + String.valueOf(sharesOwned));
