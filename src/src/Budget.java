@@ -2,19 +2,19 @@ package src.src;
 
 import java.io.Serializable;
 import java.util.*;
+import java.time.LocalDateTime;
 
 public class Budget implements Serializable {
     private static final long serialVersionUID = 1L;
     private List<BankAccount> accounts;
     private double totalBalance;
-    private HashMap<String, Double> expenses;
+    private List<Expense> expenses; // Changed to list of Expense objects
 
     public Budget() {
-        expenses = new HashMap<>();
+        expenses = new ArrayList<>();
         accounts = new ArrayList<>();
         totalBalance = 0.0;
     }
-
     public void addAccount(BankAccount account) {
         accounts.add(account);
         totalBalance += account.getBalance();
@@ -41,23 +41,47 @@ public class Budget implements Serializable {
         }
     }
 
-    public void addExpense(String type, double amount) {
-        if(expenses.containsKey(type)) {
-            expenses.put(type, expenses.get(type) + amount);
-        } else {
-            expenses.put(type, amount);
-        }
+    // Modified to add an expense with date and time
+    public void addExpense(String type, double amount, LocalDateTime dateTime) {
+        expenses.add(new Expense(type, amount, dateTime));
     }
 
-    public void removeExpense(String type) {
-        expenses.remove(type);
+    // Removing an expense now requires identifying the specific expense to remove
+    public void removeExpense(String type, LocalDateTime dateTime) {
+        expenses.removeIf(expense -> expense.getType().equals(type) && expense.getDateTime().equals(dateTime));
     }
 
+    // Calculating total expenses
     public double totalExpenses() {
-        double total = 0;
-        for(double amount : expenses.values()) {
-            total += amount;
-        }
-        return total;
+        return expenses.stream().mapToDouble(Expense::getAmount).sum();
+    }
+
+    // Getter for expenses
+    public List<Expense> getExpenses() {
+        return expenses;
+    }
+}
+
+class Expense implements Serializable {
+    private String type;
+    private double amount;
+    private LocalDateTime dateTime;
+
+    public Expense(String type, double amount, LocalDateTime dateTime) {
+        this.type = type;
+        this.amount = amount;
+        this.dateTime = dateTime;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 }
