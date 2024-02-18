@@ -5,6 +5,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 public class BudgetGUI extends JFrame {
@@ -88,11 +90,28 @@ public class BudgetGUI extends JFrame {
     private void removeSelectedExpense() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow >= 0) {
-            // Remove from budget logic, if applicable
+            // Extract the type and amount from the selected row
+            String type = (String) tableModel.getValueAt(selectedRow, 0);
+            double amount = Double.parseDouble((String) tableModel.getValueAt(selectedRow, 2));
+
+            // Parse the date and time from the string in the table
+            LocalDateTime dateTime = null;
+            try {
+                Date date = dateTimeFormat.parse((String) tableModel.getValueAt(selectedRow, 1));
+                dateTime = date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+            } catch (ParseException e) {
+                JOptionPane.showMessageDialog(this, "Error parsing the date/time for the selected expense.");
+                return;
+            }
+
+            // Remove the expense from the budget
+            budget.removeExpense(type, dateTime);
+
+            // Remove the row from the table model
             tableModel.removeRow(selectedRow);
 
-            updateTotal(); // Recalculate and update the total expenses after removing an expense
-
+            // Update the total expenses display
+            updateTotal();
             JOptionPane.showMessageDialog(this, "Expense removed successfully!");
         } else {
             JOptionPane.showMessageDialog(this, "Please select an expense to remove.");
