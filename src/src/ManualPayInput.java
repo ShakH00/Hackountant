@@ -56,6 +56,7 @@ public class ManualPayInput extends JFrame {
         try{
             double amt = Double.valueOf(txtField.getText());
             Chequing.deposit(amt, "Manual biweekly paycheque");
+            Chequing.setLastManualPay(amt);
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         } catch(NumberFormatException e){
             errorTxt.setForeground(Color.RED);

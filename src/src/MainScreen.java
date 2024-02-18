@@ -78,6 +78,7 @@ public class MainScreen extends JFrame implements WindowListener{
         }
         setBounds(0,0,400,250);
         contentPane = new JPanel();
+        setTitle("Hackountant");
         contentPane.setBorder(new EmptyBorder(5,5,5,5));
         contentPane.setLayout(null);
         setContentPane(contentPane);

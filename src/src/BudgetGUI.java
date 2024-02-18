@@ -1,5 +1,7 @@
 package src.src;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -15,12 +17,30 @@ public class BudgetGUI extends JFrame {
     private JTextField typeField, amountField, dateTimeField;
     private DefaultTableModel tableModel;
     private JTable table;
-    private JLabel totalLabel, balanceLabel, dateTimeLabel; // Labels for total expenses, total balance, and current date/time
+    private JLabel totalLabel, balanceLabel, dateTimeLabel, monthlyLabel, monthlySpending; // Labels for total expenses, total balance, and current date/time
     private SimpleDateFormat dateTimeFormat;
     BankAccount Chequing;
 
+    public void serializeBudget(String filePath) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
+            oos.writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Budget deserializeBudget(String filePath) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
+            return (Budget) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new Budget(); // Return a new instance if deserialization fails
+        }
+    }
+
     public BudgetGUI(BankAccount account) {
-        budget = new Budget();
+        budget = deserializeBudget("budget_state.txt");
+
         Chequing = account;
         dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm"); // Example date and time format
 
@@ -54,10 +74,19 @@ public class BudgetGUI extends JFrame {
         JButton saveButton = new JButton("Save Budget");
         saveButton.addActionListener(e -> saveBudgetState());
 
+        JButton resetButton = new JButton("Reset Expenses");
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetExpenses();
+            }
+        });
+
         fieldsPanel.add(addButton);
         fieldsPanel.add(removeButton);
         fieldsPanel.add(finishButton);
         fieldsPanel.add(saveButton);
+        fieldsPanel.add(resetButton);
 
         // Current date and time display
         dateTimeLabel = new JLabel(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
@@ -72,13 +101,28 @@ public class BudgetGUI extends JFrame {
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
+        for(Expense element : budget.getExpenses()){
+            tableModel.addRow(new Object[]{element.getType(), element.getDateTime(), String.valueOf(element.getAmount())});
+        }
 
         // Total expenses and balance display setup
         JPanel totalPanel = new JPanel(new FlowLayout());
         totalLabel = new JLabel("Total Expenses: $0.00");
         budget.addAccount(Chequing);
         balanceLabel = new JLabel("Total Balance: $" + budget.getTotalBalance()); // Display total balance
+        monthlyLabel = new JLabel("Monthly income: N/A");
+        monthlySpending = new JLabel("Monthly Net Income: N/A");
+
+        if(Chequing.isManualInput()==true){
+            double estimatedPay = Chequing.lastManualPay()*2;
+            monthlyLabel.setText("Monthly income: $"+estimatedPay);
+        } else{
+            monthlyLabel.setText("Monthly income: $"+Chequing.monthlyPay());
+        }
+
         totalPanel.add(totalLabel);
+        totalPanel.add(monthlyLabel);
+        totalPanel.add(monthlySpending);
         totalPanel.add(balanceLabel);
 
         add(inputPanel, BorderLayout.NORTH);
@@ -88,6 +132,13 @@ public class BudgetGUI extends JFrame {
         pack();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
+    }
+
+    public void resetExpenses(){
+        tableModel.setRowCount(0);
+        budget.removeAllExpenses();
+        budget.resetExpenses();
+        updateTotal();
     }
 
     private void addExpense() {
@@ -101,6 +152,7 @@ public class BudgetGUI extends JFrame {
             tableModel.addRow(new Object[]{type, dateTimeField.getText(), String.valueOf(amount)});
 
             updateTotal(); // Recalculate and update the total expenses
+
 
             JOptionPane.showMessageDialog(this, "Expense added successfully!");
         } catch (ParseException parseException) {
@@ -133,6 +185,7 @@ public class BudgetGUI extends JFrame {
             // Remove the row from the table model
             tableModel.removeRow(selectedRow);
 
+
             // Update the total expenses display
             updateTotal();
             JOptionPane.showMessageDialog(this, "Expense removed successfully!");
@@ -141,6 +194,8 @@ public class BudgetGUI extends JFrame {
         }
     }
 
+
+
     private void updateTotal() {
         double total = 0;
         for (int row = 0; row < tableModel.getRowCount(); row++) {
@@ -148,18 +203,38 @@ public class BudgetGUI extends JFrame {
             total += amount;
         }
         balanceLabel.setText("Total Balance: $" + budget.getTotalBalance()); // Update balance display
+        totalLabel.setText("Total expenses: "+String.valueOf(total));
+        if(Chequing.isManualInput() == true){
+            double calculateExpenses = (Chequing.lastManualPay()*2)- budget.getTotalExpenses();
+            monthlySpending.setText("Monthly Net Income: $"+calculateExpenses);
+        } else{
+            double calculateExpenses = Chequing.monthlyPay() - budget.getTotalExpenses();
+            monthlySpending.setText("Monthly Net Income: $"+calculateExpenses);
+        }
+
+
     }
 
     private void suggestInvestment() {
-        double totalExpenses = Double.parseDouble(totalLabel.getText().split("\\$")[1]);
+        double totalExpenses = budget.getTotalExpenses();
+        double monthlyPay = 0;
+        if(Chequing.isManualInput()){
+            monthlyPay = Chequing.lastManualPay()*2;
+        } else{
+            monthlyPay = Chequing.monthlyPay();
+        }
         double totalBalance = budget.getTotalBalance();
-        String message;
-        if (totalBalance - totalExpenses > 0) {
+        String message = "";
+        if ((monthlyPay-totalExpenses<=0) && (totalBalance+monthlyPay) - totalExpenses > 0) {
             message = "Investment is suggested.";
-        } else if(totalBalance - totalExpenses == 0){
+        } else if((monthlyPay-totalExpenses<=0) && (totalBalance+monthlyPay) - totalExpenses < 0) {
+            message = "You are losing money every month! Cut down expenses.";
+        } else if((totalBalance+monthlyPay) - totalExpenses == 0){
             message = "Investment will cause deficit.";
-        } else {
-            message = "Budget deficit. Cut down expenses.";
+        } else if(monthlyPay-totalExpenses > 100){
+            message = "You save money every month! Investment is highly suggested!";
+        } else if((totalBalance+monthlyPay) - totalExpenses == 0){
+            message = "Budget deficit, you spend more than you make a month. Cut down expenses.";
         }
         JOptionPane.showMessageDialog(this, message);
     }

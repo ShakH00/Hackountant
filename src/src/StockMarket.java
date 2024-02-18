@@ -226,7 +226,7 @@ public class StockMarket extends JFrame implements WindowListener {
             double difference = amountOwned - Double.valueOf(stockCompany.getSharesOwned());
             String price = stockCompany.costPerShare();
             double shareCost = Double.valueOf(price);
-            if(difference >= 0){
+            if(difference >= 0 && Double.valueOf(stockCompany.getSharesOwned()) != 0){
                 stockCompany.removeShares(sellAmt);
                 bankAccount.deposit(sellAmt*shareCost, "Sold "+sellAmt+"shares of "+corpName+" for $"+(sellAmt*shareCost));
                 ownedTxt.setText(String.valueOf(stockCompany.getSharesOwned()));

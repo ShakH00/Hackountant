@@ -11,6 +11,7 @@ public class BankAccount implements Serializable{
     double balance;
     boolean manualInput;
     double biweeklyPay;
+    double manualPay;
     LocalDate lastPayDay;
 
     // The next public string method returns an accountNumber
@@ -35,6 +36,13 @@ public class BankAccount implements Serializable{
         return monthly;
     }
 
+    public void setLastManualPay(double pay){
+        manualPay = pay;
+    }
+
+    public double lastManualPay(){
+        return manualPay;
+    }
     public void setBiweeklyPay(double pay){
         biweeklyPay = pay;
     }

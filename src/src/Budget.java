@@ -9,6 +9,7 @@ public class Budget implements Serializable {
     private static final long serialVersionUID = 1L;
     private List<BankAccount> accounts;
     private double totalBalance;
+    private double totalExpenses;
     private List<Expense> expenses; // Changed to list of Expense objects
 
     public Budget() {
@@ -26,9 +27,21 @@ public class Budget implements Serializable {
         totalBalance -= account.getBalance();
     }
 
+    public void removeAllExpenses(){
+        expenses.clear();
+    }
     public double getTotalBalance() {
         return totalBalance;
     }
+
+    public void resetExpenses(){
+        totalExpenses = 0;
+    }
+
+    public double getTotalExpenses() {
+        return totalExpenses;
+    }
+
 
     public List<BankAccount> getAccounts() {
         return accounts;
@@ -47,6 +60,7 @@ public class Budget implements Serializable {
     // Modified to add an expense with date and time
     public void addExpense(String type, double amount, LocalDateTime dateTime) {
         expenses.add(new Expense(type, amount, dateTime));
+        totalExpenses += amount;
     }
 
     // Removing an expense now requires identifying the specific expense to remove
