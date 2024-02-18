@@ -7,8 +7,10 @@ public class Budget implements Serializable {
     private static final long serialVersionUID = 1L;
     private List<BankAccount> accounts;
     private double totalBalance;
+    private HashMap<String, Double> expenses;
 
     public Budget() {
+        expenses = new HashMap<>();
         accounts = new ArrayList<>();
         totalBalance = 0.0;
     }
@@ -39,4 +41,23 @@ public class Budget implements Serializable {
         }
     }
 
+    public void addExpense(String type, double amount) {
+        if(expenses.containsKey(type)) {
+            expenses.put(type, expenses.get(type) + amount);
+        } else {
+            expenses.put(type, amount);
+        }
+    }
+
+    public void removeExpense(String type) {
+        expenses.remove(type);
+    }
+
+    public double totalExpenses() {
+        double total = 0;
+        for(double amount : expenses.values()) {
+            total += amount;
+        }
+        return total;
+    }
 }
