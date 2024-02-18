@@ -147,7 +147,7 @@ public class MainScreen extends JFrame implements WindowListener{
     }
 
     public void openBudget(){
-        budgetWindow = new BudgetGUI();
+        budgetWindow = new BudgetGUI(Chequing);
         budgetWindow.addWindowListener(this);
         budgetWindow.setVisible(true);
     }
